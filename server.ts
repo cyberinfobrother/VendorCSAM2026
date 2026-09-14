@@ -15,19 +15,19 @@ const PORT = 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Default Vendors
+// Default Vendors (V1 through V5 matching Google Apps Script Code.gs REQUIRED_VENDORS)
 const VENDORS: Record<string, { id: string; name: string; category: string; stampTitle: string; token: string }> = {
-  'V01': { id: 'V01', name: 'VENDOR 01 — Palo Alto Networks', category: 'Next-Gen Firewall & SASE', stampTitle: 'Zero-Day Shield Challenge', token: 'TOKEN-VENDOR-V01-PANW' },
-  'V02': { id: 'V02', name: 'VENDOR 02 — CrowdStrike Falcon', category: 'Endpoint Detection & Response', stampTitle: 'Adversary Threat Hunt', token: 'TOKEN-VENDOR-V02-CRWD' },
-  'V03': { id: 'V03', name: 'VENDOR 03 — Cloudflare Security', category: 'Edge & DDoS Mitigation', stampTitle: 'Edge Defense Simulator', token: 'TOKEN-VENDOR-V03-NET' },
-  'V04': { id: 'V04', name: 'VENDOR 04 — Google Cloud Security', category: 'Cloud Architecture & IAM', stampTitle: 'Chronicle SIEM Blueprint', token: 'TOKEN-VENDOR-V04-GOOG' },
-  'V05': { id: 'V05', name: 'VENDOR 05 — Cisco Security', category: 'Secure Access & Duo MFA', stampTitle: 'Phishing Defense Lab', token: 'TOKEN-VENDOR-V05-CSCO' },
-  'V06': { id: 'V06', name: 'VENDOR 06 — Microsoft Defender', category: 'Identity & Purview Governance', stampTitle: 'Entra ID Zero-Trust Gate', token: 'TOKEN-VENDOR-V06-MSFT' },
+  'V1': { id: 'V1', name: 'VENDOR 1 — Palo Alto Networks', category: 'Next-Gen Firewall & SASE', stampTitle: 'Zero-Day Shield Challenge', token: 'TOKEN-VENDOR-V1-PANW' },
+  'V2': { id: 'V2', name: 'VENDOR 2 — CrowdStrike Falcon', category: 'Endpoint Detection & Response', stampTitle: 'Adversary Threat Hunt', token: 'TOKEN-VENDOR-V2-CRWD' },
+  'V3': { id: 'V3', name: 'VENDOR 3 — Cloudflare Security', category: 'Edge & DDoS Mitigation', stampTitle: 'Edge Defense Simulator', token: 'TOKEN-VENDOR-V3-NET' },
+  'V4': { id: 'V4', name: 'VENDOR 4 — Google Cloud Security', category: 'Cloud Architecture & IAM', stampTitle: 'Chronicle SIEM Blueprint', token: 'TOKEN-VENDOR-V4-GOOG' },
+  'V5': { id: 'V5', name: 'VENDOR 5 — Cisco Security', category: 'Secure Access & Duo MFA', stampTitle: 'Phishing Defense Lab', token: 'TOKEN-VENDOR-V5-CSCO' },
 };
 
 // In-memory persistent data store
 interface ParticipantRecord {
   token: string;
+  participantId: string;
   name: string;
   office: string;
   completedVendors: string[];
@@ -37,6 +37,7 @@ interface ScanLog {
   id: string;
   timestamp: number;
   dateTime: string;
+  participantId: string;
   participantToken: string;
   participantName: string;
   participantOffice: string;
@@ -50,41 +51,39 @@ interface ScanLog {
 }
 
 const participants: Map<string, ParticipantRecord> = new Map([
-  ['PT-9421', { token: 'PT-9421', name: 'Alex Rivera', office: 'SecOps & Threat Intel — Bldg 4B', completedVendors: ['V01', 'V02', 'V03', 'V05'] }],
-  ['PT-3819', { token: 'PT-3819', name: 'Elena Rostova', office: 'Cloud Architecture — Remote / EMEA', completedVendors: ['V01'] }],
-  ['PT-7204', { token: 'PT-7204', name: 'Marcus Chen', office: 'Enterprise IT & Infrastructure — Austin Hub', completedVendors: ['V01', 'V02', 'V03', 'V04', 'V05'] }],
-  ['PT-5190', { token: 'PT-5190', name: 'Amina Al-Mansoor', office: 'Compliance & Cyber Risk — London HQ', completedVendors: [] }],
-  ['PT-8832', { token: 'PT-8832', name: 'David K. Miller', office: 'Product Engineering — San Francisco', completedVendors: ['V02', 'V03'] }],
-  ['PT-6311', { token: 'PT-6311', name: 'Priya Patel', office: 'DevSecOps — Seattle Campus', completedVendors: ['V01', 'V04', 'V05'] }],
+  ['PT-9421', { token: 'PT-9421', participantId: 'CSAM-001', name: 'Alex Rivera', office: 'SecOps & Threat Intel — Bldg 4B', completedVendors: ['V1', 'V2', 'V3'] }],
+  ['PT-3819', { token: 'PT-3819', participantId: 'CSAM-002', name: 'Elena Rostova', office: 'Cloud Architecture — Remote / EMEA', completedVendors: ['V1'] }],
+  ['PT-7204', { token: 'PT-7204', participantId: 'CSAM-003', name: 'Marcus Chen', office: 'Enterprise IT & Infrastructure — Austin Hub', completedVendors: ['V1', 'V2', 'V3', 'V4', 'V5'] }],
+  ['PT-5190', { token: 'PT-5190', participantId: 'CSAM-004', name: 'Amina Al-Mansoor', office: 'Compliance & Cyber Risk — London HQ', completedVendors: [] }],
+  ['PT-8832', { token: 'PT-8832', participantId: 'CSAM-005', name: 'David K. Miller', office: 'Product Engineering — San Francisco', completedVendors: ['V2', 'V3'] }],
+  ['PT-6311', { token: 'PT-6311', participantId: 'CSAM-006', name: 'Priya Patel', office: 'DevSecOps — Seattle Campus', completedVendors: ['V1', 'V4', 'V5'] }],
 ]);
 
 let scanHistory: ScanLog[] = [];
 let externalBackendUrl: string = process.env.BACKEND_WEBHOOK_URL || '';
 
 const TOTAL_REQUIRED_FOR_RAFFLE = 5;
-const TOTAL_STATIONS = 6;
+const TOTAL_STATIONS = 5;
 
 // Helper to resolve vendor from token or ID
 function findVendor(tokenOrId: string) {
-  if (!tokenOrId) return VENDORS['V04'];
+  if (!tokenOrId) return VENDORS['V4'];
   const clean = tokenOrId.trim();
-  // Check direct key
-  if (VENDORS[clean.toUpperCase()]) {
-    return VENDORS[clean.toUpperCase()];
+  const normalizedKey = clean.toUpperCase().replace(/^V0/, 'V');
+  if (VENDORS[normalizedKey]) {
+    return VENDORS[normalizedKey];
   }
-  // Check by token or id match
   for (const v of Object.values(VENDORS)) {
     if (v.id.toLowerCase() === clean.toLowerCase() || v.token.toLowerCase() === clean.toLowerCase()) {
       return v;
     }
   }
-  // If starts with V and 2 digits
-  const vMatch = clean.match(/V0?\d+/i);
+  const vMatch = clean.match(/V0?([1-5])/i);
   if (vMatch) {
-    const key = vMatch[0].toUpperCase();
+    const key = `V${vMatch[1]}`;
     if (VENDORS[key]) return VENDORS[key];
   }
-  return VENDORS['V04']; // default fallback
+  return VENDORS['V4']; // default fallback
 }
 
 // ----------------- API ROUTES ----------------- //
@@ -214,7 +213,9 @@ app.post('/api/vendor/scan', async (req, res) => {
     // Format response matching Google Apps Script structure
     res.json({
       success: true,
+      ok: true,
       duplicate: alreadyCompleted,
+      participantId: participant.participantId || participant.token,
       vendor: vendor.id,
       vendorName: vendor.name,
       name: participant.name,
@@ -223,8 +224,8 @@ app.post('/api/vendor/scan', async (req, res) => {
       total: TOTAL_STATIONS,
       raffleQualified: isRaffleQualified,
       message: alreadyCompleted
-        ? `Vendor ${vendor.id.substring(1)} was already completed.`
-        : `Vendor ${vendor.id.substring(1)} has been recorded.`,
+        ? `Vendor ${vendor.id} was already completed.`
+        : `Vendor ${vendor.id} has been recorded.`,
       externalBackend: externalBackendUrl
         ? { synced: !!externalResponse, url: externalBackendUrl, error: externalError }
         : null,

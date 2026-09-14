@@ -1,50 +1,43 @@
 import { VendorStation, Participant } from '../types';
 
 export const TOTAL_STATIONS_FOR_RAFFLE = 5;
-export const TOTAL_EVENT_STATIONS = 6;
+export const TOTAL_EVENT_STATIONS = 5;
 
 export const DEFAULT_VENDORS: VendorStation[] = [
   {
-    id: 'V01',
-    name: 'VENDOR 01 — Palo Alto Networks',
+    id: 'V1',
+    name: 'VENDOR 1 — Palo Alto Networks',
     category: 'Next-Gen Firewall & SASE',
     stampTitle: 'Zero-Day Shield Challenge',
-    token: 'TOKEN-VENDOR-V01-PANW',
+    token: 'TOKEN-VENDOR-V1-PANW',
   },
   {
-    id: 'V02',
-    name: 'VENDOR 02 — CrowdStrike Falcon',
+    id: 'V2',
+    name: 'VENDOR 2 — CrowdStrike Falcon',
     category: 'Endpoint Detection & Response',
     stampTitle: 'Adversary Threat Hunt',
-    token: 'TOKEN-VENDOR-V02-CRWD',
+    token: 'TOKEN-VENDOR-V2-CRWD',
   },
   {
-    id: 'V03',
-    name: 'VENDOR 03 — Cloudflare Security',
+    id: 'V3',
+    name: 'VENDOR 3 — Cloudflare Security',
     category: 'Edge & DDoS Mitigation',
     stampTitle: 'Edge Defense Simulator',
-    token: 'TOKEN-VENDOR-V03-NET',
+    token: 'TOKEN-VENDOR-V3-NET',
   },
   {
-    id: 'V04',
-    name: 'VENDOR 04 — Google Cloud Security',
+    id: 'V4',
+    name: 'VENDOR 4 — Google Cloud Security',
     category: 'Cloud Architecture & IAM',
     stampTitle: 'Chronicle SIEM Blueprint',
-    token: 'TOKEN-VENDOR-V04-GOOG',
+    token: 'TOKEN-VENDOR-V4-GOOG',
   },
   {
-    id: 'V05',
-    name: 'VENDOR 05 — Cisco Security',
+    id: 'V5',
+    name: 'VENDOR 5 — Cisco Security',
     category: 'Secure Access & Duo MFA',
     stampTitle: 'Phishing Defense Lab',
-    token: 'TOKEN-VENDOR-V05-CSCO',
-  },
-  {
-    id: 'V06',
-    name: 'VENDOR 06 — Microsoft Defender',
-    category: 'Identity & Purview Governance',
-    stampTitle: 'Entra ID Zero-Trust Gate',
-    token: 'TOKEN-VENDOR-V06-MSFT',
+    token: 'TOKEN-VENDOR-V5-CSCO',
   },
 ];
 
@@ -53,19 +46,19 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
     token: 'PT-9421',
     name: 'Alex Rivera',
     office: 'SecOps & Threat Intel — Bldg 4B',
-    completedVendors: ['V01', 'V02', 'V03', 'V05'],
+    completedVendors: ['V1', 'V2', 'V3'],
   },
   {
     token: 'PT-3819',
     name: 'Elena Rostova',
     office: 'Cloud Architecture — Remote / EMEA',
-    completedVendors: ['V01'],
+    completedVendors: ['V1'],
   },
   {
     token: 'PT-7204',
     name: 'Marcus Chen',
     office: 'Enterprise IT & Infrastructure — Austin Hub',
-    completedVendors: ['V01', 'V02', 'V03', 'V04', 'V05'],
+    completedVendors: ['V1', 'V2', 'V3', 'V4', 'V5'],
   },
   {
     token: 'PT-5190',
@@ -77,13 +70,13 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
     token: 'PT-8832',
     name: 'David K. Miller',
     office: 'Product Engineering — San Francisco',
-    completedVendors: ['V02', 'V03'],
+    completedVendors: ['V2', 'V3'],
   },
   {
     token: 'PT-6311',
     name: 'Priya Patel',
     office: 'DevSecOps — Seattle Campus',
-    completedVendors: ['V01', 'V04', 'V05'],
+    completedVendors: ['V1', 'V4', 'V5'],
   },
 ];
 
